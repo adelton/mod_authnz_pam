@@ -1,0 +1,72 @@
+
+Apache module mod_authnz_pam
+============================
+
+Apache module mod_authnz_pam serves as Basic Authentication provider
+which runs the [login, password] authentication through the PAM
+stack.
+
+The primary intended use is in connection with sssd and pam_sss.so.
+
+Module configuration
+--------------------
+
+The module is configured using the
+
+    AuthBasicProvider PAM
+
+directive and then by specifying the PAM service name:
+
+    AuthPAMService name_of_the_PAM_service
+
+      The PAM service to authenticate against.
+
+Example:
+
+    <Location /private>
+      AuthType Basic
+      AuthName "private area"
+      AuthBasicProvider PAM
+      AuthPAMService tlwiki
+      Require valid-user
+    </Location>
+
+The PAM service needs to be configured. For the above shown
+tlwiki example, file /etc/pam.d/tlwiki could be created with content
+
+    auth    required   pam_sss.so
+    account required   pam_sss.so
+
+to authenticate against sssd.
+
+On SELinux enabled systems, boolean allow_httpd_mod_auth_pam needs to
+be enabled:
+
+    setsebool -P allow_httpd_mod_auth_pam 1
+
+Building from sources
+---------------------
+
+When building from sources, command
+
+    apxs -i -a -c mod_authnz_pam.c -lpam -Wall -pedantic
+
+should build and install the module.
+
+License
+-------
+
+Copyright 2014 Jan Pazdziora
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
