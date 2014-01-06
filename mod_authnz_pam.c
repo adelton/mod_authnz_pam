@@ -120,8 +120,36 @@ static const authn_provider authn_pam_provider = {
 	&pam_auth_account,
 };
 
+static int check_user_access(request_rec * r) {
+	int m = r->method_number;
+	const apr_array_header_t * reqs_arr = ap_requires(r);
+	if (! reqs_arr) {
+		return DECLINED;
+	}
+	require_line * reqs = (require_line *)reqs_arr->elts;
+	int x;
+	for (x = 0; x < reqs_arr->nelts; x++) {
+		if (!(reqs[x].method_mask & (AP_METHOD_BIT << m))) {
+			continue;
+		}
+		const char * t = reqs[x].requirement;
+		const char * w = ap_getword_white(r->pool, &t);
+		if (!strcasecmp(w, "pam-account")) {
+			const char * pam_service = ap_getword_conf(r->pool, &t);
+			if (pam_service && strlen(pam_service)) {
+				authn_status ret = pam_authenticate_with_login_password(r, pam_service, r->user, NULL, _PAM_STEP_ACCOUNT);
+				if (ret == AUTH_GRANTED) {
+					return OK;
+				}
+			}
+		}
+	}
+	return DECLINED;
+}
+
 static void register_hooks(apr_pool_t * p) {
 	ap_register_provider(p, AUTHN_PROVIDER_GROUP, "PAM", "0", &authn_pam_provider);
+	ap_hook_auth_checker(check_user_access, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
 module AP_MODULE_DECLARE_DATA authnz_pam_module = {
