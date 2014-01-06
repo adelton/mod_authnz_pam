@@ -120,6 +120,26 @@ static const authn_provider authn_pam_provider = {
 	&pam_auth_account,
 };
 
+#ifdef AUTHN_PROVIDER_VERSION
+static authz_status check_user_access(request_rec * r, const char * require_args, const void * parsed_require_args) {
+	if (!r->user) {
+		return AUTHZ_DENIED_NO_USER;
+	}
+
+	const char * pam_service = ap_getword_conf(r->pool, &require_args);
+	if (pam_service && pam_service[0]) {
+		authn_status ret = pam_authenticate_with_login_password(r, pam_service, r->user, NULL, _PAM_STEP_ACCOUNT);
+		if (ret == AUTH_GRANTED) {
+			return AUTHZ_GRANTED;
+		}
+	}
+	return AUTHZ_DENIED;
+}
+static const authz_provider authz_pam_provider = {
+	&check_user_access,
+        NULL,
+};
+#else
 static int check_user_access(request_rec * r) {
 	int m = r->method_number;
 	const apr_array_header_t * reqs_arr = ap_requires(r);
@@ -146,10 +166,16 @@ static int check_user_access(request_rec * r) {
 	}
 	return DECLINED;
 }
+#endif
 
 static void register_hooks(apr_pool_t * p) {
+#ifdef AUTHN_PROVIDER_VERSION
+	ap_register_auth_provider(p, AUTHN_PROVIDER_GROUP, "PAM", AUTHN_PROVIDER_VERSION, &authn_pam_provider, AP_AUTH_INTERNAL_PER_CONF);
+	ap_register_auth_provider(p, AUTHZ_PROVIDER_GROUP, "pam-account", AUTHZ_PROVIDER_VERSION, &authz_pam_provider, AP_AUTH_INTERNAL_PER_CONF);
+#else
 	ap_register_provider(p, AUTHN_PROVIDER_GROUP, "PAM", "0", &authn_pam_provider);
 	ap_hook_auth_checker(check_user_access, NULL, NULL, APR_HOOK_MIDDLE);
+#endif
 }
 
 module AP_MODULE_DECLARE_DATA authnz_pam_module = {
