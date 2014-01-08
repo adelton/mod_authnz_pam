@@ -104,6 +104,10 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	return AUTH_GRANTED;
 }
 
+APR_DECLARE_OPTIONAL_FN(authn_status, pam_authenticate_with_login_password,
+	(request_rec * r, const char * pam_service,
+	const char * login, const char * password, int steps));
+
 module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
 static authn_status pam_auth_account(request_rec * r, const char * login, const char * password) {
@@ -176,6 +180,7 @@ static void register_hooks(apr_pool_t * p) {
 	ap_register_provider(p, AUTHN_PROVIDER_GROUP, "PAM", "0", &authn_pam_provider);
 	ap_hook_auth_checker(check_user_access, NULL, NULL, APR_HOOK_MIDDLE);
 #endif
+	APR_REGISTER_OPTIONAL_FN(pam_authenticate_with_login_password);
 }
 
 module AP_MODULE_DECLARE_DATA authnz_pam_module = {
