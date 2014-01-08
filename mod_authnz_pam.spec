@@ -4,7 +4,7 @@
 %{!?_httpd_modconfdir: %{expand: %%global _httpd_modconfdir %%{_sysconfdir}/httpd/conf.d}}
 %{!?_httpd_moddir:    %{expand: %%global _httpd_moddir    %%{_libdir}/httpd/modules}}
 
-Summary: PAM Basic Authentication provider and authorization checker
+Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
 Version: 0.5
 Release: 1%{?dist}
@@ -24,10 +24,10 @@ Requires: pam
 %{?filter_setup}
 
 %description
-mod_authnz_pam is a Basic Authentication provider which runs the
-[login, password] authentication through the PAM stack; it can also
-be used as an authorization module, supplementing authentication
-done by other modules, for example mod_auth_kerb.
+mod_authnz_pam is a PAM authorization module, supplementing
+authentication done by other modules, for example mod_auth_kerb; it
+can also be used as full Basic Authentication provider which runs the
+[login, password] authentication through the PAM stack.
 
 %prep
 %setup -q -n %{name}-%{version}

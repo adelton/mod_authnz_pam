@@ -2,15 +2,41 @@
 Apache module mod_authnz_pam
 ============================
 
-Apache module mod_authnz_pam serves as Basic Authentication provider
-which runs the [login, password] authentication through the PAM
-stack. It can also be used as an authorization module, supplementing
-authentication done by other modules, for example mod_auth_kerb.
+Apache module mod_authnz_pam serves as PAM authorization module,
+supplementing authentication done by other modules, for example
+mod_auth_kerb. It can also be used as a full Basic Authentication
+provider for testing purposes, running the [login, password]
+authentication through the PAM stack.
 
 The primary intended use is in connection with sssd and pam_sss.so.
 
 Module configuration
 --------------------
+
+Authorization:
+
+Let us assume there is already Kerberos authentication configured:
+
+    <Location /private>
+      AuthType Kerberos
+      AuthName "Kerberos Login"
+      KrbMethodNegotiate On
+      KrbMethodK5Passwd Off
+      KrbAuthRealms EXAMPLE.COM
+      Krb5KeyTab /etc/http.keytab
+      KrbLocalUserMapping On
+      Require valid-user
+    </Location>
+
+The Require valid-user line can be replaced by
+
+    Require pam-account pam_service_name
+
+for example to run authorization check for the Kerberos-authenticated
+user using the PAM service pam_service_name.
+
+This can be useful to get for example host-based access control from
+an IPA server for the web service.
 
 Basic Authentication:
 
@@ -41,31 +67,6 @@ tlwiki example, file /etc/pam.d/tlwiki could be created with content
     account required   pam_sss.so
 
 to authenticate against sssd.
-
-Authorization:
-
-Let us assume there is already Kerberos authentication configured:
-
-    <Location /private>
-      AuthType Kerberos
-      AuthName "Kerberos Login"
-      KrbMethodNegotiate On
-      KrbMethodK5Passwd Off
-      KrbAuthRealms EXAMPLE.COM
-      Krb5KeyTab /etc/http.keytab
-      KrbLocalUserMapping On
-      Require valid-user
-    </Location>
-
-The Require valid-user line can be replaced by
-
-    Require pam-account pam_service_name
-
-for example to run authorization check for the Kerberos-authenticated
-user using the PAM service pam_service_name.
-
-This can be useful to get for example host-based access control from
-an IPA server for the web service.
 
 On SELinux enabled systems, boolean allow_httpd_mod_auth_pam needs to
 be enabled:
