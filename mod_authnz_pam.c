@@ -46,7 +46,7 @@ static const command_rec authnz_pam_cmds[] = {
 	{NULL}
 };
 
-int pam_authenticate_conv(int num_msg, const struct pam_message ** msg, struct pam_response ** resp, void * appdata_ptr) {
+static int pam_authenticate_conv(int num_msg, const struct pam_message ** msg, struct pam_response ** resp, void * appdata_ptr) {
 	struct pam_response * response = NULL;
 	if (!msg || !resp || !appdata_ptr)
 		return PAM_CONV_ERR;
