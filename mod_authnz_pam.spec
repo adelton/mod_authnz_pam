@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 0.8
+Version: 0.8.1
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -35,7 +35,7 @@ can also be used as full Basic Authentication provider which runs the
 %setup -q -n %{name}-%{version}
 
 %build
-%{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic" mod_authnz_pam.c
+%{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic" -lpam mod_authnz_pam.c
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -59,6 +59,9 @@ install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.
 %{_httpd_moddir}/*.so
 
 %changelog
+* Thu Jan 30 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.8.1-1
+- Fixing regression from previous change.
+
 * Thu Jan 30 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.8-1
 - 1058805 - .spec changes for Fedora package review.
 
