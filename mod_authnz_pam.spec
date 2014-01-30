@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 0.7
+Version: 0.8
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -58,12 +58,15 @@ install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.
 %{_httpd_moddir}/*.so
 
 %changelog
-* Thu Jan 09 2014 Jan Pazdziora - 0.7-1
+* Thu Jan 30 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.8-1
+- 1058805 - .spec changes for Fedora package review.
+
+* Thu Jan 09 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.7-1
 - Declare all functions static for proper isolation.
 
-* Wed Jan 08 2014 Jan Pazdziora - 0.6-1
+* Wed Jan 08 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.6-1
 - Make pam_authenticate_with_login_password available for other modules.
 - Reformat documentation to make the Basic Auth usage less prominent.
 
-* Mon Jan 06 2014 Jan Pazdziora - 0.5-1
+* Mon Jan 06 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.5-1
 - Initial release.
