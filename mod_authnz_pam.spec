@@ -51,7 +51,7 @@ install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.
 %files
 %doc README LICENSE
 %if "%{_httpd_modconfdir}" != "%{_httpd_confdir}"
-%config(noreplace) %{_httpd_modconfdir}/*.conf
+%config(noreplace) %{_httpd_modconfdir}/55-authnz_pam.conf
 %else
 %config(noreplace) %{_httpd_confdir}/authnz_pam.conf
 %endif
