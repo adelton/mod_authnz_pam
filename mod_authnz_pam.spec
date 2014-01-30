@@ -34,7 +34,7 @@ can also be used as full Basic Authentication provider which runs the
 %setup -q -n %{name}-%{version}
 
 %build
-%{_httpd_apxs} -c mod_authnz_pam.c -lpam -Wall -pedantic
+%{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic" mod_authnz_pam.c
 
 %install
 rm -rf $RPM_BUILD_ROOT
