@@ -34,7 +34,7 @@ typedef struct {
 	char * pam_service;
 } authnz_pam_config_rec;
 
-void * create_dir_conf(apr_pool_t * pool, char * dir) {
+static void * create_dir_conf(apr_pool_t * pool, char * dir) {
 	authnz_pam_config_rec * cfg = apr_pcalloc(pool, sizeof(authnz_pam_config_rec));
 	return cfg;
 }
