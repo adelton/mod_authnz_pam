@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 0.9
+Version: 0.9.1
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -59,6 +59,9 @@ install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.
 %{_httpd_moddir}/*.so
 
 %changelog
+* Tue Apr 15 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.9.1-1
+- Fix error message when pam_authenticate step is skipped.
+
 * Wed Mar 19 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.9-1
 - One more function made static for proper isolation.
 

@@ -86,6 +86,7 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			ret = pam_authenticate(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
 		}
 		if ((ret == PAM_SUCCESS) && (steps & _PAM_STEP_ACCOUNT)) {
+			param = login;
 			stage = "PAM account validation failed for user";
 			ret = pam_acct_mgmt(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
 		}
