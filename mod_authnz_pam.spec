@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 0.9.1
+Version: 0.9.2
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -35,7 +35,7 @@ can also be used as full Basic Authentication provider which runs the
 %setup -q -n %{name}-%{version}
 
 %build
-%{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic" -lpam mod_authnz_pam.c
+%{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic -std=c99" -lpam mod_authnz_pam.c
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -59,6 +59,9 @@ install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.
 %{_httpd_moddir}/*.so
 
 %changelog
+* Tue May 13 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.9.2-1
+- Silence compile warnings by specifying C99.
+
 * Tue Apr 15 2014 Jan Pazdziora <jpazdziora@redhat.com> - 0.9.1-1
 - Fix error message when pam_authenticate step is skipped.
 
