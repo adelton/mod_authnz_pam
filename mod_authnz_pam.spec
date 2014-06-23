@@ -37,7 +37,9 @@ can also be used as full Basic Authentication provider which runs the
 %build
 %{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic -std=c99" -lpam mod_authnz_pam.c
 %if "%{_httpd_modconfdir}" != "%{_httpd_confdir}"
-cp authnz_pam.conf authnz_pam.confx
+echo > authnz_pam.confx
+echo "# Load the module in %{_httpd_modconfdir}/55-authnz_pam.conf" >> authnz_pam.confx
+cat authnz_pam.conf >> authnz_pam.confx
 %else
 cat authnz_pam.module > authnz_pam.confx
 cat authnz_pam.conf >> authnz_pam.confx
