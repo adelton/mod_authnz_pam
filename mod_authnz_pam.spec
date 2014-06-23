@@ -36,6 +36,12 @@ can also be used as full Basic Authentication provider which runs the
 
 %build
 %{_httpd_apxs} -c -Wc,"%{optflags} -Wall -pedantic -std=c99" -lpam mod_authnz_pam.c
+%if "%{_httpd_modconfdir}" != "%{_httpd_confdir}"
+cp authnz_pam.conf authnz_pam.confx
+%else
+cat authnz_pam.module > authnz_pam.confx
+cat authnz_pam.conf >> authnz_pam.confx
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -43,19 +49,16 @@ install -Dm 755 .libs/mod_authnz_pam.so $RPM_BUILD_ROOT%{_httpd_moddir}/mod_auth
 
 %if "%{_httpd_modconfdir}" != "%{_httpd_confdir}"
 # httpd >= 2.4.x
-install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_modconfdir}/55-authnz_pam.conf
-%else
-# httpd <= 2.2.x
-install -Dp -m 0644 authnz_pam.conf $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.conf
+install -Dp -m 0644 authnz_pam.module $RPM_BUILD_ROOT%{_httpd_modconfdir}/55-authnz_pam.conf
 %endif
+install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam.conf
 
 %files
 %doc README LICENSE
 %if "%{_httpd_modconfdir}" != "%{_httpd_confdir}"
 %config(noreplace) %{_httpd_modconfdir}/55-authnz_pam.conf
-%else
-%config(noreplace) %{_httpd_confdir}/authnz_pam.conf
 %endif
+%config(noreplace) %{_httpd_confdir}/authnz_pam.conf
 %{_httpd_moddir}/*.so
 
 %changelog
