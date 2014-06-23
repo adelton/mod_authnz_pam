@@ -79,7 +79,15 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	const char * stage = "PAM transaction failed for service";
 	const char * param = pam_service;
 	int ret;
-	if ((ret = pam_start(pam_service, login, &pam_conversation, &pamh)) == PAM_SUCCESS) {
+	ret = pam_start(pam_service, login, &pam_conversation, &pamh);
+	if (ret == PAM_SUCCESS) {
+		const char * remote_host_or_ip = ap_get_remote_host(r->connection, r->per_dir_config, REMOTE_NAME, NULL);
+		if (remote_host_or_ip) {
+			stage = "PAM pam_set_item PAM_RHOST failed for service";
+			ret = pam_set_item(pamh, PAM_RHOST, remote_host_or_ip);
+		}
+	}
+	if (ret == PAM_SUCCESS) {
 		if (steps & _PAM_STEP_AUTH) {
 			param = login;
 			stage = "PAM authentication failed for user";
