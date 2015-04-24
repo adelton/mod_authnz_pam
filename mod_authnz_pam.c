@@ -71,6 +71,31 @@ static int pam_authenticate_conv(int num_msg, const struct pam_message ** msg, s
 	return PAM_SUCCESS;
 }
 
+#if AP_MODULE_MAGIC_AT_LEAST(20111025,1)
+#else
+#include <stdio.h>
+#include "apr_lib.h"
+static const char * ap_escape_urlencoded(apr_pool_t * pool, const char * buffer) {
+	char * copy = apr_palloc(pool, 3 * strlen(buffer) + 1);
+	char * p = copy;
+	while (*buffer) {
+		if (!apr_isalnum(*buffer) && !strchr(".-*_ ", *buffer)) {
+			*p++ = '%';
+			sprintf(p, "%02x", *p);
+			*p += 2;
+		} else if (*buffer == ' ') {
+			*p++ = '+';
+		} else {
+			*p++ = *buffer;
+		}
+		buffer++;
+	}
+	*p++ = '\0';
+	return copy;
+}
+#endif
+
+
 static const char * format_location(request_rec * r, const char * url, const char *login) {
 	const char * out = "";
 	const char * p = url;
