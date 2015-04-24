@@ -80,6 +80,20 @@ FreeIPA server, the setting would be
 
     AuthPAMExpiredRedirect https://<IPA-server>/ipa/ui/reset_password.html
 
+It is also possible to use placeholders in the URL that will be replaced
+with current location (for backreference) and username (to prefill)
+on the target page:
+
+	%s	URL of the current page
+	%u	The username that was used for the PAM authentication
+	%%	The character % itself.
+
+For example for FreeIPA 4.1+, the value can actually be
+
+    https://<IPA-server>/ipa/ui/reset_password.html?url=%s
+
+SELinux:
+
 On SELinux enabled systems, boolean allow_httpd_mod_auth_pam needs to
 be enabled:
 

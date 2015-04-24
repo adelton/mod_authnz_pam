@@ -71,6 +71,41 @@ static int pam_authenticate_conv(int num_msg, const struct pam_message ** msg, s
 	return PAM_SUCCESS;
 }
 
+static const char * format_location(request_rec * r, const char * url, const char *login) {
+	const char * out = "";
+	const char * p = url;
+	const char * append = NULL;
+	while (*p) {
+		if (*p == '%') {
+			if (*(p + 1) == '%') {
+				append = "%";
+			} else if (*(p + 1) == 's') {
+				append = ap_construct_url(r->pool, r->uri, r);
+				if (r->args) {
+					append = apr_pstrcat(r->pool, append, "?", r->args, NULL);
+				}
+			} else if (*(p + 1) == 'u') {
+				append = login;
+			}
+		}
+		if (append) {
+			char * prefix = "";
+			if (p != url) {
+				prefix = apr_pstrndup(r->pool, url, p - url);
+			}
+			out = apr_pstrcat(r->pool, out, prefix, ap_escape_urlencoded(r->pool, append), NULL);
+			p++;
+			url = p + 1;
+			append = NULL;
+		}
+		p++;
+	}
+	if (p != url) {
+		out = apr_pstrcat(r->pool, out, url, NULL);
+	}
+	return out;
+}
+
 module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
 #define _REMOTE_USER_ENV_NAME "REMOTE_USER"
@@ -109,7 +144,7 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 					ap_log_error(APLOG_MARK, APLOG_ERR, 0, r->server,
 						"mod_authnz_pam: PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
 						conf->expired_redirect_url);
-					apr_table_addn(r->headers_out, "Location", conf->expired_redirect_url);
+					apr_table_addn(r->headers_out, "Location", format_location(r, conf->expired_redirect_url, login));
 					return HTTP_TEMPORARY_REDIRECT;
 				}
 			}
