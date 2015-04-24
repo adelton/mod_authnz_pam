@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2014 Jan Pazdziora
+ * Copyright 2014--2015 Jan Pazdziora
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@
 
 typedef struct {
 	char * pam_service;
+	char * expired_redirect_url;
 } authnz_pam_config_rec;
 
 static void * create_dir_conf(apr_pool_t * pool, char * dir) {
@@ -43,6 +44,9 @@ static const command_rec authnz_pam_cmds[] = {
 	AP_INIT_TAKE1("AuthPAMService", ap_set_string_slot,
 		(void *)APR_OFFSETOF(authnz_pam_config_rec, pam_service),
 		OR_AUTHCFG, "PAM service to authenticate against"),
+	AP_INIT_TAKE1("AuthPAMExpiredRedirect", ap_set_string_slot,
+		(void *)APR_OFFSETOF(authnz_pam_config_rec, expired_redirect_url),
+		OR_AUTHCFG, "URL to redirect to user credentials expired have expired"),
 	{NULL}
 };
 
@@ -66,6 +70,8 @@ static int pam_authenticate_conv(int num_msg, const struct pam_message ** msg, s
 	* resp = response;
 	return PAM_SUCCESS;
 }
+
+module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
 #define _REMOTE_USER_ENV_NAME "REMOTE_USER"
 #define _EXTERNAL_AUTH_ERROR_ENV_NAME "EXTERNAL_AUTH_ERROR"
@@ -97,6 +103,16 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			param = login;
 			stage = "PAM account validation failed for user";
 			ret = pam_acct_mgmt(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
+			if (ret == PAM_NEW_AUTHTOK_REQD) {
+				authnz_pam_config_rec * conf = ap_get_module_config(r->per_dir_config, &authnz_pam_module);
+				if (conf && conf->expired_redirect_url) {
+					ap_log_error(APLOG_MARK, APLOG_ERR, 0, r->server,
+						"mod_authnz_pam: PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
+						conf->expired_redirect_url);
+					apr_table_addn(r->headers_out, "Location", conf->expired_redirect_url);
+					return HTTP_TEMPORARY_REDIRECT;
+				}
+			}
 		}
 	}
 	if (ret != PAM_SUCCESS) {
@@ -116,8 +132,6 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 APR_DECLARE_OPTIONAL_FN(authn_status, pam_authenticate_with_login_password,
 	(request_rec * r, const char * pam_service,
 	const char * login, const char * password, int steps));
-
-module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
 static authn_status pam_auth_account(request_rec * r, const char * login, const char * password) {
 	authnz_pam_config_rec * conf = ap_get_module_config(r->per_dir_config, &authnz_pam_module);

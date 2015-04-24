@@ -68,6 +68,18 @@ tlwiki example, file /etc/pam.d/tlwiki could be created with content
 
 to authenticate against sssd.
 
+Handling expired password:
+
+    AuthPAMExpiredRedirect <URL>
+
+For both the authorization and HTTP Basic authentication case, if the
+password the user has presented has expired (PAM return codes
+PAM_CRED_EXPIRED or PAM_NEW_AUTHTOK_REQD), when AuthPAMExpiredRedirect
+is specified with a URL, redirect is made to that locations. For
+FreeIPA server, the setting would be
+
+    AuthPAMExpiredRedirect https://<IPA-server>/ipa/ui/reset_password.html
+
 On SELinux enabled systems, boolean allow_httpd_mod_auth_pam needs to
 be enabled:
 
@@ -85,7 +97,7 @@ should build and install the module.
 License
 -------
 
-Copyright 2014 Jan Pazdziora
+Copyright 2014--2015 Jan Pazdziora
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
