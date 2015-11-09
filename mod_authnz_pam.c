@@ -61,7 +61,11 @@ static int pam_authenticate_conv(int num_msg, const struct pam_message ** msg, s
 		response[i].resp = 0;
 		response[i].resp_retcode = 0;
 		if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF) {
-			response[i].resp = strdup(appdata_ptr);
+			if (i == 0) {
+				response[i].resp = strdup(appdata_ptr);
+			} else {
+				response[i].resp = NULL;
+			}
 		} else {
 			free(response);
 			return PAM_CONV_ERR;
