@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 1.0.0
+Version: 1.0.1
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -64,6 +64,9 @@ install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam
 %{_httpd_moddir}/*.so
 
 %changelog
+* Tue Nov 10 2015 Jan Pazdziora <jpazdziora@redhat.com> - 1.0.1-1
+- Fix handling of pre-auth / OTP / 2FA situations.
+
 * Thu Jun 25 2015 Jan Pazdziora <jpazdziora@redhat.com> - 1.0.0-1
 - Add support for AuthPAMExpiredRedirect.
 
