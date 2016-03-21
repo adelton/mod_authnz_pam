@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 1.0.1
+Version: 1.0.2
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -16,7 +16,6 @@ Source0: http://www.adelton.com/apache/mod_authnz_pam/%{name}-%{version}.tar.gz
 BuildRequires: httpd-devel
 BuildRequires: pam-devel
 BuildRequires: pkgconfig
-Requires(pre): httpd
 Requires: httpd-mmn = %{_httpd_mmn}
 Requires: pam
 
@@ -64,6 +63,9 @@ install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam
 %{_httpd_moddir}/*.so
 
 %changelog
+* Mon Mar 21 2016 Jan Pazdziora <jpazdziora@redhat.com> - 1.0.2-1
+- 1319166 - the Requires(pre) httpd does not seem to be needed.
+
 * Tue Nov 10 2015 Jan Pazdziora <jpazdziora@redhat.com> - 1.0.1-1
 - Fix handling of pre-auth / OTP / 2FA situations.
 
