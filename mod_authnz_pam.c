@@ -137,6 +137,12 @@ static const char * format_location(request_rec * r, const char * url, const cha
 
 module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
+#ifdef APLOG_USE_MODULE
+#define SHOW_MODULE ""
+#else
+#define SHOW_MODULE "mod_authnz_pam: "
+#endif
+
 #define _REMOTE_USER_ENV_NAME "REMOTE_USER"
 #define _EXTERNAL_AUTH_ERROR_ENV_NAME "EXTERNAL_AUTH_ERROR"
 #define _PAM_STEP_AUTH 1
@@ -171,7 +177,7 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 				authnz_pam_config_rec * conf = ap_get_module_config(r->per_dir_config, &authnz_pam_module);
 				if (conf && conf->expired_redirect_url) {
 					ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
-						"mod_authnz_pam: PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
+						SHOW_MODULE "PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
 						conf->expired_redirect_url);
 					apr_table_addn(r->headers_out, "Location", format_location(r, conf->expired_redirect_url, login));
 					return HTTP_TEMPORARY_REDIRECT;
@@ -181,14 +187,14 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	}
 	if (ret != PAM_SUCCESS) {
 		const char * strerr = pam_strerror(pamh, ret);
-		ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "mod_authnz_pam: %s %s: %s", stage, param, strerr);
+		ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, SHOW_MODULE "%s %s: %s", stage, param, strerr);
 		apr_table_setn(r->subprocess_env, _EXTERNAL_AUTH_ERROR_ENV_NAME, apr_pstrdup(r->pool, strerr));
 		pam_end(pamh, ret);
 		return AUTH_DENIED;
 	}
 	apr_table_setn(r->subprocess_env, _REMOTE_USER_ENV_NAME, login);
 	r->user = apr_pstrdup(r->pool, login);
-	ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r, "mod_authnz_pam: PAM authentication passed for user %s", login);
+	ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r, SHOW_MODULE "PAM authentication passed for user %s", login);
 	pam_end(pamh, ret);
 	return AUTH_GRANTED;
 }
@@ -270,7 +276,12 @@ static void register_hooks(apr_pool_t * p) {
 	APR_REGISTER_OPTIONAL_FN(pam_authenticate_with_login_password);
 }
 
-module AP_MODULE_DECLARE_DATA authnz_pam_module = {
+#ifdef AP_DECLARE_MODULE
+AP_DECLARE_MODULE(authnz_pam)
+#else
+module AP_MODULE_DECLARE_DATA authnz_pam_module
+#endif
+	= {
 	STANDARD20_MODULE_STUFF,
 	create_dir_conf,	/* Per-directory configuration handler */
 	NULL,			/* Merge handler for per-directory configurations */
