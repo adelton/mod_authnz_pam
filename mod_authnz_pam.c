@@ -194,7 +194,7 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	}
 	apr_table_setn(r->subprocess_env, _REMOTE_USER_ENV_NAME, login);
 	r->user = apr_pstrdup(r->pool, login);
-	ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r, SHOW_MODULE "PAM authentication passed for user %s", login);
+	ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r, SHOW_MODULE "PAM authentication passed for user %s", login);
 	pam_end(pamh, ret);
 	return AUTH_GRANTED;
 }
