@@ -170,7 +170,7 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			if (ret == PAM_NEW_AUTHTOK_REQD) {
 				authnz_pam_config_rec * conf = ap_get_module_config(r->per_dir_config, &authnz_pam_module);
 				if (conf && conf->expired_redirect_url) {
-					ap_log_error(APLOG_MARK, APLOG_ERR, 0, r->server,
+					ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
 						"mod_authnz_pam: PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
 						conf->expired_redirect_url);
 					apr_table_addn(r->headers_out, "Location", format_location(r, conf->expired_redirect_url, login));
@@ -181,14 +181,14 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	}
 	if (ret != PAM_SUCCESS) {
 		const char * strerr = pam_strerror(pamh, ret);
-		ap_log_error(APLOG_MARK, APLOG_WARNING, 0, r->server, "mod_authnz_pam: %s %s: %s", stage, param, strerr);
+		ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "mod_authnz_pam: %s %s: %s", stage, param, strerr);
 		apr_table_setn(r->subprocess_env, _EXTERNAL_AUTH_ERROR_ENV_NAME, apr_pstrdup(r->pool, strerr));
 		pam_end(pamh, ret);
 		return AUTH_DENIED;
 	}
 	apr_table_setn(r->subprocess_env, _REMOTE_USER_ENV_NAME, login);
 	r->user = apr_pstrdup(r->pool, login);
-	ap_log_error(APLOG_MARK, APLOG_NOTICE, 0, r->server, "mod_authnz_pam: PAM authentication passed for user %s", login);
+	ap_log_rerror(APLOG_MARK, APLOG_NOTICE, 0, r, "mod_authnz_pam: PAM authentication passed for user %s", login);
 	pam_end(pamh, ret);
 	return AUTH_GRANTED;
 }
