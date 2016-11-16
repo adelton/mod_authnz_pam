@@ -180,7 +180,9 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 						SHOW_MODULE "PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
 						conf->expired_redirect_url);
 					apr_table_addn(r->headers_out, "Location", format_location(r, conf->expired_redirect_url, login));
-					return HTTP_TEMPORARY_REDIRECT;
+					r->status = HTTP_TEMPORARY_REDIRECT;
+					ap_send_error_response(r, 0);
+					return AUTH_DENIED;
 				}
 			}
 		}
