@@ -85,8 +85,7 @@ static const char * ap_escape_urlencoded(apr_pool_t * pool, const char * buffer)
 	while (*buffer) {
 		if (!apr_isalnum(*buffer) && !strchr(".-*_ ", *buffer)) {
 			*p++ = '%';
-			sprintf(p, "%02x", *p);
-			*p += 2;
+			p += snprintf(p, 3, "%02x", *buffer);
 		} else if (*buffer == ' ') {
 			*p++ = '+';
 		} else {
@@ -94,7 +93,7 @@ static const char * ap_escape_urlencoded(apr_pool_t * pool, const char * buffer)
 		}
 		buffer++;
 	}
-	*p++ = '\0';
+	*p = '\0';
 	return copy;
 }
 #endif
