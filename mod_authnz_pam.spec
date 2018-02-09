@@ -8,7 +8,7 @@
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
 Version: 1.1.0
-Release: 1%{?dist}
+Release: 7%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
 URL: http://www.adelton.com/apache/mod_authnz_pam/
@@ -63,10 +63,13 @@ install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam
 %{_httpd_moddir}/*.so
 
 %changelog
+* Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.1.0-7
+- Escape macros in %%changelog
+
 * Tue Nov 22 2016 Jan Pazdziora <jpazdziora@redhat.com> - 1.1.0-1
 - Logging improvements; success logging moved from notice to info level.
 - Fix redirect for AuthPAMExpiredRedirect with Basic Auth.
-- Fix AuthPAMExpiredRedirect %s escaping on Apache 2.2.
+- Fix AuthPAMExpiredRedirect %%s escaping on Apache 2.2.
 
 * Mon Mar 21 2016 Jan Pazdziora <jpazdziora@redhat.com> - 1.0.2-1
 - 1319166 - the Requires(pre) httpd does not seem to be needed.
