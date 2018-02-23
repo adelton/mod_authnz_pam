@@ -8,11 +8,12 @@
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
 Version: 1.1.0
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
 URL: http://www.adelton.com/apache/mod_authnz_pam/
 Source0: http://www.adelton.com/apache/mod_authnz_pam/%{name}-%{version}.tar.gz
+BuildRequires: gcc
 BuildRequires: httpd-devel
 BuildRequires: pam-devel
 BuildRequires: pkgconfig
@@ -63,6 +64,9 @@ install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam
 %{_httpd_moddir}/*.so
 
 %changelog
+* Fri Feb 23 2018 Jan Pazdziora <jpazdziora@redhat.com> - 1.1.0-8
+- https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B#BuildRequires_and_Requires
+
 * Fri Feb 09 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.1.0-7
 - Escape macros in %%changelog
 
