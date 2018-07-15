@@ -1,0 +1,26 @@
+language: generic
+
+sudo: required
+
+services:
+- docker
+
+install: true
+
+stages:
+- build-rpm
+
+matrix:
+  include:
+    - stage: build
+      env: from=registry.fedoraproject.org/fedora:rawhide dockerfile=fedora
+    - stage: build
+      env: from=registry.fedoraproject.org/fedora:28 dockerfile=fedora
+    - stage: build
+      env: from=centos:centos7 dockerfile=centos
+    - stage: build
+      env: from=centos:centos6 dockerfile=centos
+
+script:
+- sed -i "s#^FROM.*#FROM $from#" tests/Dockerfile.$dockerfile
+- docker build -f tests/Dockerfile.$dockerfile .
