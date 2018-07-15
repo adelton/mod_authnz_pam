@@ -144,6 +144,7 @@ module AP_MODULE_DECLARE_DATA authnz_pam_module;
 #define SHOW_MODULE "mod_authnz_pam: "
 #endif
 
+#if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
 static APR_OPTIONAL_FN_TYPE(ap_authn_cache_store) *authn_cache_store = NULL;
 
 // copied from socache implementations of dbm and dbd @ http://svn.eu.apache.org/viewvc?view=revision&revision=957072
@@ -169,6 +170,7 @@ void store_password_to_cache(request_rec * r, const char * login, const char * p
 	}
 	authn_cache_store(r, "PAM", login, NULL, hash);
 }
+#endif
 
 #define _REMOTE_USER_ENV_NAME "REMOTE_USER"
 #define _EXTERNAL_AUTH_ERROR_ENV_NAME "EXTERNAL_AUTH_ERROR"
@@ -195,9 +197,11 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			param = login;
 			stage = "PAM authentication failed for user";
 			ret = pam_authenticate(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
+#if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
 			if (ret == PAM_SUCCESS) {
 				store_password_to_cache(r, login, password);
 			}
+#endif
 		}
 		if ((ret == PAM_SUCCESS) && (steps & _PAM_STEP_ACCOUNT)) {
 			param = login;
@@ -306,7 +310,9 @@ static void register_hooks(apr_pool_t * p) {
 	ap_hook_auth_checker(check_user_access, NULL, NULL, APR_HOOK_MIDDLE);
 #endif
 	APR_REGISTER_OPTIONAL_FN(pam_authenticate_with_login_password);
+#if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
 	ap_hook_optional_fn_retrieve(opt_retr, NULL, NULL, APR_HOOK_MIDDLE);
+#endif
 }
 
 #ifdef AP_DECLARE_MODULE
