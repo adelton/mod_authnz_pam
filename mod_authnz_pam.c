@@ -17,7 +17,9 @@
 
 #include <security/pam_appl.h>
 
+#include "apr_general.h"
 #include "apr_strings.h"
+#include "apr_md5.h"
 
 #include "ap_config.h"
 #include "ap_provider.h"
@@ -142,6 +144,32 @@ module AP_MODULE_DECLARE_DATA authnz_pam_module;
 #define SHOW_MODULE "mod_authnz_pam: "
 #endif
 
+static APR_OPTIONAL_FN_TYPE(ap_authn_cache_store) *authn_cache_store = NULL;
+
+// copied from socache implementations of dbm and dbd @ http://svn.eu.apache.org/viewvc?view=revision&revision=957072
+static void opt_retr(void) {
+	authn_cache_store = APR_RETRIEVE_OPTIONAL_FN(ap_authn_cache_store);
+}
+
+void store_password_to_cache(request_rec * r, const char * login, const char * password) {
+	if (!(authn_cache_store && login && password)) {
+		return;
+	}
+	unsigned char salt[16];
+	char hash[61];
+	if (apr_generate_random_bytes(salt, sizeof(salt)) != APR_SUCCESS) {
+		ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+			SHOW_MODULE "apr_generate_random_bytes failed, will not cache password");
+		return;
+	}
+	if (apr_bcrypt_encode(password, 5, salt, sizeof(salt), hash, sizeof(hash)) != APR_SUCCESS) {
+		ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+			SHOW_MODULE "apr_bcrypt_encode failed, will not cache password");
+		return;
+	}
+	authn_cache_store(r, "PAM", login, NULL, hash);
+}
+
 #define _REMOTE_USER_ENV_NAME "REMOTE_USER"
 #define _EXTERNAL_AUTH_ERROR_ENV_NAME "EXTERNAL_AUTH_ERROR"
 #define _PAM_STEP_AUTH 1
@@ -167,6 +195,9 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			param = login;
 			stage = "PAM authentication failed for user";
 			ret = pam_authenticate(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
+			if (ret == PAM_SUCCESS) {
+				store_password_to_cache(r, login, password);
+			}
 		}
 		if ((ret == PAM_SUCCESS) && (steps & _PAM_STEP_ACCOUNT)) {
 			param = login;
@@ -275,6 +306,7 @@ static void register_hooks(apr_pool_t * p) {
 	ap_hook_auth_checker(check_user_access, NULL, NULL, APR_HOOK_MIDDLE);
 #endif
 	APR_REGISTER_OPTIONAL_FN(pam_authenticate_with_login_password);
+	ap_hook_optional_fn_retrieve(opt_retr, NULL, NULL, APR_HOOK_MIDDLE);
 }
 
 #ifdef AP_DECLARE_MODULE
