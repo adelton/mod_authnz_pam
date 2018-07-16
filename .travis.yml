@@ -12,15 +12,18 @@ stages:
 
 matrix:
   include:
-    - stage: build
-      env: from=registry.fedoraproject.org/fedora:rawhide dockerfile=fedora
-    - stage: build
-      env: from=registry.fedoraproject.org/fedora:28 dockerfile=fedora
-    - stage: build
-      env: from=centos:centos7 dockerfile=centos
-    - stage: build
-      env: from=centos:centos6 dockerfile=centos
+    - stage: build-rpm
+      env: fedora=rawhide
+    - stage: build-rpm
+      env: fedora=28
+    - stage: build-rpm
+      env: centos=centos7
+    - stage: build-rpm
+      env: centos=centos6
+
+before_script:
+- if test -n "$fedora" ; then sed -i "s#^FROM.*#FROM registry.fedoraproject.org/fedora:$fedora#" tests/Dockerfile ; fi
+- if test -n "$centos" ; then sed -i "s#^FROM.*#FROM centos:$centos#" tests/Dockerfile ; fi
 
 script:
-- sed -i "s#^FROM.*#FROM $from#" tests/Dockerfile.$dockerfile
-- docker build -f tests/Dockerfile.$dockerfile .
+- docker build -f tests/Dockerfile .
