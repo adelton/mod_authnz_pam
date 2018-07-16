@@ -8,17 +8,17 @@ services:
 install: true
 
 stages:
-- build-rpm
+- build-and-test
 
 matrix:
   include:
-    - stage: build-rpm
+    - stage: build-and-test
       env: fedora=rawhide
-    - stage: build-rpm
+    - stage: build-and-test
       env: fedora=28
-    - stage: build-rpm
+    - stage: build-and-test
       env: centos=centos7
-    - stage: build-rpm
+    - stage: build-and-test
       env: centos=centos6
 
 before_script:
@@ -26,4 +26,6 @@ before_script:
 - if test -n "$centos" ; then sed -i "s#^FROM.*#FROM centos:$centos#" tests/Dockerfile ; fi
 
 script:
-- docker build -f tests/Dockerfile .
+- docker build -t mod_authnz_pam -f tests/Dockerfile .
+- docker run --name mod_authnz_pam --rm -d mod_authnz_pam
+- docker exec mod_authnz_pam tests/run.sh

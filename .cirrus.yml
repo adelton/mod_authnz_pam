@@ -5,4 +5,7 @@ test_task:
       image: registry.fedoraproject.org/fedora:latest
       image: centos:centos7
       image: centos:centos6
-  test_script: tests/build.sh
+  build_script: tests/build.sh
+  config_script: tests/config.sh
+  run_httpd_background_script: /usr/sbin/httpd -DFOREGROUND
+  test_script: tests/run.sh

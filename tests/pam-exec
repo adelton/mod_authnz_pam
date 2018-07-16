@@ -1,0 +1,28 @@
+#!/bin/bash
+
+echo "$0: $PAM_TYPE $PAM_USER"
+
+if [ "$PAM_TYPE" == 'auth' ] || [ "$PAM_TYPE" == 'account' ] ; then
+	PAM_FILE="/etc/pam-auth/$PAM_USER"
+	if ! [ -f $PAM_FILE ] ; then
+		echo "No [$PAM_FILE] for user [$PAM_USER]" >&2
+		exit 2
+	fi
+	if [ $PAM_TYPE == 'account' ] ; then
+		# For account check, existing file is enough to allow access
+		echo "$0: account [$PAM_USER] ok"
+		exit 0
+	fi
+
+	# For auth, we compare the passwords
+	read PASSWORD
+	read CHECK_PASSWORD < $PAM_FILE
+	if [ "$PASSWORD" == "$CHECK_PASSWORD" ] ; then
+		echo "$0: auth [$PAM_USER] ok"
+		exit 0
+	fi
+	echo "Provided password [$PASSWORD] does not match expected [$CHECK_PASSWORD]" >&2
+	exit 3
+fi
+echo "Unsupported PAM_TYPE [$PAM_TYPE]" >&2
+exit 4

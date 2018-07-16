@@ -1,0 +1,2 @@
+auth	optional	pam_exec.so debug expose_authtok log=/var/log/httpd/pam_exec.log /usr/bin/pam-exec
+account	required	pam_exec.so debug log=/var/log/httpd/pam_exec.log /usr/bin/pam-exec
