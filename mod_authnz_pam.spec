@@ -7,8 +7,8 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 1.1.0
-Release: 8%{?dist}
+Version: 1.2.0
+Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
 URL: http://www.adelton.com/apache/mod_authnz_pam/
@@ -64,6 +64,9 @@ install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam
 %{_httpd_moddir}/*.so
 
 %changelog
+* Tue Jul 17 2018 Jan Pazdziora <jpazdziora@redhat.com> - 1.2.0-1
+- Add support for mod_authn_socache.
+
 * Fri Feb 23 2018 Jan Pazdziora <jpazdziora@redhat.com> - 1.1.0-8
 - https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B#BuildRequires_and_Requires
 
