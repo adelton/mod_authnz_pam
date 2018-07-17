@@ -26,3 +26,16 @@ echo Secret > /etc/pam-auth/bob
 curl -u bob:Secret -s http://localhost/authn | tee /dev/stderr | grep 'User bob'
 echo Secret2 > /etc/pam-auth/bob
 curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
+
+if rpm -ql httpd | grep mod_authn_socache ; then
+	echo "Testing AuthBasicProvider socache PAM + AuthnCacheProvideFor PAM"
+	curl -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
+	curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn-cached | tee /dev/stderr | grep 401
+	echo Secret > /etc/pam-auth/bob
+	curl -u bob:Secret -s http://localhost/authn-cached | tee /dev/stderr | grep 'User bob'
+	echo Secret2 > /etc/pam-auth/bob
+	curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
+	curl -u bob:Secret -s http://localhost/authn-cached | tee /dev/stderr | grep 'User bob'
+	sleep 11
+	curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn-cached | tee /dev/stderr | grep 401
+fi

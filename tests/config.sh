@@ -12,4 +12,7 @@ chmod a+x /var/log/httpd
 touch /var/log/httpd/pam_exec.log
 chown apache /var/log/httpd/pam_exec.log
 cp tests/auth.conf /etc/httpd/conf.d/
+if rpm -ql httpd | grep mod_authn_socache ; then
+	cat tests/auth-socache.conf >> /etc/httpd/conf.d/auth.conf
+fi
 htpasswd -bc /etc/htpasswd alice Tajnost
