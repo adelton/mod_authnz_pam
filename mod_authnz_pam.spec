@@ -11,8 +11,8 @@ Version: 1.2.0
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
-URL: http://www.adelton.com/apache/mod_authnz_pam/
-Source0: http://www.adelton.com/apache/mod_authnz_pam/%{name}-%{version}.tar.gz
+URL: https://www.adelton.com/apache/mod_authnz_pam/
+Source0: https://www.adelton.com/apache/mod_authnz_pam/%{name}-%{version}.tar.gz
 BuildRequires: gcc
 BuildRequires: httpd-devel
 BuildRequires: pam-devel
