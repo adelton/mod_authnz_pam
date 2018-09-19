@@ -176,7 +176,6 @@ void store_password_to_cache(request_rec * r, const char * login, const char * p
 #define _EXTERNAL_AUTH_ERROR_ENV_NAME "EXTERNAL_AUTH_ERROR"
 #define _PAM_STEP_AUTH 1
 #define _PAM_STEP_ACCOUNT 2
-#define _PAM_STEP_ALL 3
 static authn_status pam_authenticate_with_login_password(request_rec * r, const char * pam_service,
 	const char * login, const char * password, int steps) {
 	pam_handle_t * pamh = NULL;
@@ -246,7 +245,7 @@ static authn_status pam_auth_account(request_rec * r, const char * login, const 
 		return AUTH_GENERAL_ERROR;
 	}
 
-	return pam_authenticate_with_login_password(r, conf->pam_service, login, password, _PAM_STEP_ALL);
+	return pam_authenticate_with_login_password(r, conf->pam_service, login, password, _PAM_STEP_AUTH);
 }
 
 static const authn_provider authn_pam_provider = {
