@@ -15,7 +15,7 @@ matrix:
     - stage: build-and-test
       env: fedora=rawhide
     - stage: build-and-test
-      env: fedora=28
+      env: fedora=latest
     - stage: build-and-test
       env: centos=centos7
     - stage: build-and-test
