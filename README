@@ -94,10 +94,10 @@ For example for FreeIPA 4.1+, the value can actually be
 
 SELinux:
 
-On SELinux enabled systems, boolean allow_httpd_mod_auth_pam needs to
+On SELinux enabled systems, boolean httpd_mod_auth_pam needs to
 be enabled:
 
-    setsebool -P allow_httpd_mod_auth_pam 1
+    setsebool -P httpd_mod_auth_pam 1
 
 Building from sources
 ---------------------
