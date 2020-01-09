@@ -11,6 +11,8 @@ for i in $( seq 1 10 ) ; do
 	sleep 3
 done
 
+rm -f /etc/pam-auth/*
+
 echo "Testing Require pam-account"
 curl -s -D /dev/stdout -o /dev/null http://localhost/authz | tee /dev/stderr | grep 401
 curl -u alice:Tajnost -s -D /dev/stdout -o /dev/null http://localhost/authz | tee /dev/stderr | grep 401
