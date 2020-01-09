@@ -39,3 +39,5 @@ if rpm -ql httpd | grep mod_authn_socache ; then
 	sleep 11
 	curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn-cached | tee /dev/stderr | grep 401
 fi
+
+echo OK $0.
