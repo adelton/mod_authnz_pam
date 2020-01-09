@@ -17,6 +17,8 @@ matrix:
     - stage: build-and-test
       env: fedora=latest
     - stage: build-and-test
+      env: centos=8
+    - stage: build-and-test
       env: centos=centos7
     - stage: build-and-test
       env: centos=centos6
