@@ -197,11 +197,6 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			param = login;
 			stage = "PAM authentication failed for user";
 			ret = pam_authenticate(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
-#if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
-			if (ret == PAM_SUCCESS) {
-				store_password_to_cache(r, login, password);
-			}
-#endif
 		}
 		if ((ret == PAM_SUCCESS) && (steps & _PAM_STEP_ACCOUNT)) {
 			param = login;
@@ -232,6 +227,11 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	r->user = apr_pstrdup(r->pool, login);
 	ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r, SHOW_MODULE "PAM authentication passed for user %s", login);
 	pam_end(pamh, ret);
+#if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
+	if (steps & _PAM_STEP_AUTH) {
+		store_password_to_cache(r, login, password);
+	}
+#endif
 	return AUTH_GRANTED;
 }
 
