@@ -41,6 +41,15 @@ if rpm -ql httpd | grep mod_authn_socache ; then
 	curl -u bob:Secret -s http://localhost/authn-cached | tee /dev/stderr | grep 'User bob'
 	sleep 11
 	curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn-cached | tee /dev/stderr | grep 401
+
+	###### make sure we won't store the credential to cache if the credential didn't pass pam account check
+	sleep 11
+	rm /etc/pam-account/bob
+	curl -u bob:Secret2 -s -D /dev/stdout -o /dev/null http://localhost/authn-cached | tee /dev/stderr | grep 401
+	curl -u bob:Secret2 -s -D /dev/stdout -o /dev/null http://localhost/authn-cached | tee /dev/stderr | grep 401
+	touch /etc/pam-account/bob
+	curl -u bob:Secret2 -s http://localhost/authn-cached | tee /dev/stderr | grep 'User bob'
+	######
 fi
 
 echo OK $0.
