@@ -5,6 +5,7 @@ set -x
 
 sed -i 's/^MaxClients.*/MaxClients 1/' /etc/httpd/conf/httpd.conf
 mkdir -p /etc/pam-auth
+mkdir -p /etc/pam-account
 cp -p tests/auth.cgi /var/www/cgi-bin/auth.cgi
 cp -p tests/pam-exec /usr/bin/pam-exec
 cp tests/pam-web /etc/pam.d/web
