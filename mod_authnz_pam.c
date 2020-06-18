@@ -184,6 +184,7 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	const char * stage = "PAM transaction failed for service";
 	const char * param = pam_service;
 	int ret;
+	int is_authenticated = 0;
 	ret = pam_start(pam_service, login, &pam_conversation, &pamh);
 	if (ret == PAM_SUCCESS) {
 		const char * remote_host_or_ip = ap_get_remote_host(r->connection, r->per_dir_config, REMOTE_NAME, NULL);
@@ -197,6 +198,9 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 			param = login;
 			stage = "PAM authentication failed for user";
 			ret = pam_authenticate(pamh, PAM_SILENT | PAM_DISALLOW_NULL_AUTHTOK);
+			if (ret == PAM_SUCCESS) {
+				is_authenticated = 1;
+			}
 		}
 		if ((ret == PAM_SUCCESS) && (steps & _PAM_STEP_ACCOUNT)) {
 			param = login;
@@ -228,7 +232,9 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r, SHOW_MODULE "PAM authentication passed for user %s", login);
 	pam_end(pamh, ret);
 #if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
-    store_password_to_cache(r, login, password);
+	if (is_authenticated) {
+    	store_password_to_cache(r, login, password);
+	}
 #endif
 	return AUTH_GRANTED;
 }
