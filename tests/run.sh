@@ -11,6 +11,15 @@ for i in $( seq 1 10 ) ; do
 	sleep 3
 done
 
+cp /var/log/httpd/pam_exec.log /var/log/httpd/pam_exec.log.old
+
+function next_log () { set +x
+	tail -c +$(( $( stat -c%s /var/log/httpd/pam_exec.log.old ) + 1 )) /var/log/httpd/pam_exec.log | sed 's/^/:: /'
+	# echo '###' >> /var/log/httpd/pam_exec.log
+	cp /var/log/httpd/pam_exec.log /var/log/httpd/pam_exec.log.old
+	set -x
+}
+
 rm -f /etc/pam-auth/*
 
 echo "Testing Require pam-account"
@@ -26,8 +35,17 @@ touch /etc/pam-auth/bob
 curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
 echo Secret > /etc/pam-auth/bob
 curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
+next_log > /dev/null
 touch /etc/pam-account/bob
 curl -u bob:Secret -s http://localhost/authn | tee /dev/stderr | grep 'User bob'
+next_log | grep 'account .bob. ok' | wc -l | grep '^1$'
+curl -u bob:Secret -s http://localhost/authnp | tee /dev/stderr | grep 'User bob'
+next_log | grep 'account .bob. ok' | wc -l | grep '^2$'
+curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authnp2 | tee /dev/stderr | grep 401
+next_log | grep -E 'account .bob. ok|No ./etc/pam-account2/bob' | uniq | wc -l | grep '^2$'
+touch /etc/pam-account2/bob
+curl -u bob:Secret -s http://localhost/authnp | tee /dev/stderr | grep 'User bob'
+next_log | grep 'account .bob. ok' | wc -l | grep '^2$'
 echo Secret2 > /etc/pam-auth/bob
 curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
 

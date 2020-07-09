@@ -68,6 +68,31 @@ tlwiki example, file /etc/pam.d/tlwiki could be created with content
 
 to authenticate against sssd.
 
+As part of the Basic Authentication operation, both PAM authentication
+and PAM account verification (auth and account in PAM service
+configuration) are run. This is to ensure that the HTTP status 401
+is returned when the user is not permitted to log in, allowing fallback
+to different authentication mechanism. That also means that for the
+above example
+
+      AuthBasicProvider PAM
+      AuthPAMService tlwiki
+
+it is not necessary to use
+
+      Require pam-account tlwiki
+
+and
+
+      Require valid-user
+
+is enough because the account verification will be run as part of the
+HTTP authentication. In fact, using Require pam-account with the same
+PAM service name will cause the account PAM checks to be run twice.
+On the other hand, it is possible to configure Require pam-account
+with different PAM service name than the AuthPAMService value and get
+two separate account PAM checks during the Basic Authentication.
+
 Handling expired password:
 
     AuthPAMExpiredRedirect <URL>
@@ -111,7 +136,7 @@ should build and install the module.
 License
 -------
 
-Copyright 2014--2018 Jan Pazdziora
+Copyright 2014--2020 Jan Pazdziora
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

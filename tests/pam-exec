@@ -3,7 +3,11 @@
 echo "$0: $PAM_TYPE $PAM_USER"
 
 if [ "$PAM_TYPE" == 'auth' ] ; then
-	PAM_FILE="/etc/pam-auth/$PAM_USER"
+	if [ "$PAM_SERVICE" = 'web2' ] ; then
+		PAM_FILE="/etc/pam-auth2/$PAM_USER"
+	else
+		PAM_FILE="/etc/pam-auth/$PAM_USER"
+	fi
 	if ! [ -f $PAM_FILE ] ; then
 		echo "No [$PAM_FILE] for user [$PAM_USER]" >&2
 		exit 2
@@ -20,7 +24,11 @@ if [ "$PAM_TYPE" == 'auth' ] ; then
 fi
 
 if [ "$PAM_TYPE" == 'account' ] ; then
-	PAM_FILE="/etc/pam-account/$PAM_USER"
+	if [ "$PAM_SERVICE" = 'web2' ] ; then
+		PAM_FILE="/etc/pam-account2/$PAM_USER"
+	else
+		PAM_FILE="/etc/pam-account/$PAM_USER"
+	fi
 	if ! [ -f $PAM_FILE ] ; then
 		echo "No [$PAM_FILE] for user [$PAM_USER]" >&2
 		exit 2
