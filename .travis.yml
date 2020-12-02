@@ -18,8 +18,6 @@ matrix:
       env: centos=8
     - stage: build-and-test
       env: centos=centos7
-    - stage: build-and-test
-      env: centos=centos6
 
 before_script:
 - if test -n "$fedora" ; then sed -i "s#^FROM.*#FROM registry.fedoraproject.org/fedora:$fedora#" tests/Dockerfile ; fi
