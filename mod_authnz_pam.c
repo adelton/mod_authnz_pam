@@ -186,7 +186,11 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 	int ret;
 	ret = pam_start(pam_service, login, &pam_conversation, &pamh);
 	if (ret == PAM_SUCCESS) {
+#if AP_MODULE_MAGIC_AT_LEAST(20120211,56)
+		const char * remote_host_or_ip = ap_get_useragent_host(r, REMOTE_NAME, NULL);
+#else
 		const char * remote_host_or_ip = ap_get_remote_host(r->connection, r->per_dir_config, REMOTE_NAME, NULL);
+#endif
 		if (remote_host_or_ip) {
 			stage = "PAM pam_set_item PAM_RHOST failed for service";
 			ret = pam_set_item(pamh, PAM_RHOST, remote_host_or_ip);
