@@ -1,0 +1,27 @@
+name: Build and test mod_authnz_pam
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '38 4 3,17 * *'
+
+jobs:
+  build:
+    name: Run tests in container
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ fedora-latest, centos-8, centos-7 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set the right OS in the Dockerfile
+        run: sed -i "s#^FROM.*#FROM $( echo ${{ matrix.os }} | sed 's#^fedora-#registry.fedoraproject.org/fedora:#; s#^centos-#registry.centos.org/centos:#;' )#" tests/Dockerfile
+      - name: Build image
+        run: docker build -t mod_authnz_pam -f tests/Dockerfile .
+      - name: Run container
+        run: docker run --name mod_authnz_pam --rm -d mod_authnz_pam
+      - name: Run tests in the container
+        run: docker exec mod_authnz_pam tests/run.sh
