@@ -2,6 +2,10 @@ language: generic
 dist: focal
 sudo: required
 
+virt: vm
+arch: arm64-graviton2
+group: edge
+
 services:
 - docker
 
