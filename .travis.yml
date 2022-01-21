@@ -28,8 +28,6 @@ before_script:
 - if test -n "$centos" ; then sed -i "s#^FROM.*#FROM centos:$centos#" tests/Dockerfile ; fi
 
 script:
-- if grep -q fedora tests/Dockerfile ; then sed -i 's/^RUN/# RUN/; s%^ENTRYPOINT .*%ENTRYPOINT [ "/usr/bin/sleep", "600" ]%' tests/Dockerfile ; fi
 - docker build -t mod_authnz_pam -f tests/Dockerfile .
-- docker run $( grep -q fedora tests/Dockerfile && echo --security-opt=seccomp:unconfined ) --name mod_authnz_pam --rm -d mod_authnz_pam
-- if grep -q fedora tests/Dockerfile ; then docker exec mod_authnz_pam tests/build.sh ; docker exec mod_authnz_pam tests/config.sh ; fi
-- if grep -q fedora tests/Dockerfile ; then docker exec mod_authnz_pam /usr/sbin/httpd -DFOREGROUND ; fi & docker exec mod_authnz_pam tests/run.sh
+- docker run --name mod_authnz_pam --rm -d mod_authnz_pam
+- docker exec mod_authnz_pam tests/run.sh
