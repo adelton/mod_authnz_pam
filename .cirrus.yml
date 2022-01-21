@@ -1,5 +1,5 @@
 test_task:
-  container:
+  arm_container:
     matrix:
       image: registry.fedoraproject.org/fedora:latest
       image: quay.io/centos/centos:stream8
