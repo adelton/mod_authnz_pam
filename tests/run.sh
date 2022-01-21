@@ -49,6 +49,17 @@ next_log | grep 'account .bob. ok' | wc -l | grep '^2$'
 echo Secret2 > /etc/pam-auth/bob
 curl -u bob:Secret -s -D /dev/stdout -o /dev/null http://localhost/authn | tee /dev/stderr | grep 401
 
+curl -u userx:heslox -s http://localhost/authnp3 | tee /dev/stderr | grep 401
+curl -u user1:heslox -s http://localhost/authnp3 | tee /dev/stderr | grep 401
+curl -u user1:heslo1 -s http://localhost/authnp3 | tee /dev/stderr | grep 'User user1'
+curl -u user1:heslo1 -s http://localhost/authnp4 | tee /dev/stderr | grep 'User user1'
+chage -d $(date -d -2days +%Y-%m-%d) -M  1 user1
+curl -u user1:heslo1 -s http://localhost/authnp3 | tee /dev/stderr | grep 401
+curl -i -u user1:heslo1 -s http://localhost/authnp4 | tee /dev/stderr | grep 'Location: http://localhost/fix-password'
+chage -d $(date -d -2days +%Y-%m-%d) -M  3 user1
+curl -u user1:heslo1 -s http://localhost/authnp3 | tee /dev/stderr | grep 'User user1'
+curl -u user1:heslo1 -s http://localhost/authnp4 | tee /dev/stderr | grep 'User user1'
+
 if rpm -ql httpd | grep mod_authn_socache ; then
 	echo "Testing AuthBasicProvider socache PAM + AuthnCacheProvideFor PAM"
 	rm /etc/pam-account/bob
