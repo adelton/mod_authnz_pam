@@ -55,7 +55,7 @@ curl -u user1:heslo1 -s http://localhost/authnp3 | tee /dev/stderr | grep 'User 
 curl -u user1:heslo1 -s http://localhost/authnp4 | tee /dev/stderr | grep 'User user1'
 chage -d $(date -d -2days +%Y-%m-%d) -M  1 user1
 curl -u user1:heslo1 -s http://localhost/authnp3 | tee /dev/stderr | grep 401
-curl -i -u user1:heslo1 -s http://localhost/authnp4 | tee /dev/stderr | grep 'Location: http://localhost/fix-password'
+curl -i -u user1:heslo1 -s 'http://localhost/authnp4?id=123&data=M%26M' | tee /dev/stderr | grep -F 'Location: http://localhost/fix-password?return=http%3a%2f%2flocalhost%2fauthnp4%3fid%3d123%26data%3dM%2526M&percent=%25&user=user1'
 chage -d $(date -d -2days +%Y-%m-%d) -M  3 user1
 curl -u user1:heslo1 -s http://localhost/authnp3 | tee /dev/stderr | grep 'User user1'
 curl -u user1:heslo1 -s http://localhost/authnp4 | tee /dev/stderr | grep 'User user1'
