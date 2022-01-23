@@ -7,7 +7,7 @@
 
 Summary: PAM authorization checker and PAM Basic Authentication provider
 Name: mod_authnz_pam
-Version: 1.2.2
+Version: 1.2.3
 Release: 1%{?dist}
 License: ASL 2.0
 Group: System Environment/Daemons
@@ -64,6 +64,10 @@ install -Dp -m 0644 authnz_pam.confx $RPM_BUILD_ROOT%{_httpd_confdir}/authnz_pam
 %{_httpd_moddir}/*.so
 
 %changelog
+* Sun Jan 23 2022 Jan Pazdziora <jpazdziora@redhat.com> - 1.2.3-1
+- Change default redirect status for AuthPAMExpiredRedirect
+  to 303 See Other, make it configurable.
+
 * Tue Mar 30 2021 Jan Pazdziora <jpazdziora@redhat.com> - 1.2.2-1
 - Use ap_get_useragent_host for interoperability with mod_remoteip.
 
