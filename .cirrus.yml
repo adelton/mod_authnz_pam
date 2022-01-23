@@ -1,7 +1,6 @@
 test_task:
   container:
     matrix:
-      image: registry.fedoraproject.org/fedora:rawhide
       image: registry.fedoraproject.org/fedora:latest
       image: quay.io/centos/centos:stream8
       image: centos:centos7

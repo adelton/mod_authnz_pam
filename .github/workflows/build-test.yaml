@@ -14,7 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ 'registry.fedoraproject.org/fedora:latest', 'quay.io/centos/centos:stream8', 'registry.centos.org/centos:7' ]
+        os:
+          - 'registry.fedoraproject.org/fedora:rawhide'
+          - 'registry.fedoraproject.org/fedora:latest'
+          - 'quay.io/centos/centos:stream8'
+          - 'registry.centos.org/centos:7'
     steps:
       - uses: actions/checkout@v2
       - name: Set the right OS in the Dockerfile
