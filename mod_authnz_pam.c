@@ -49,7 +49,7 @@ static void * create_dir_conf(apr_pool_t * pool, char * dir) {
 	return cfg;
 }
 
-static const char * set_redirect_and_status(cmd_parms * cmd, void * conf_void, char * url, char * status) {
+static const char * set_redirect_and_status(cmd_parms * cmd, void * conf_void, const char * url, const char * status) {
 	authnz_pam_config_rec * cfg = (authnz_pam_config_rec *) conf_void;
         if (cfg) {
                 cfg->expired_redirect_url = apr_pstrdup(cmd->pool, url);
