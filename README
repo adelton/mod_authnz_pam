@@ -95,7 +95,7 @@ two separate account PAM checks during the Basic Authentication.
 
 Handling expired password:
 
-    AuthPAMExpiredRedirect <URL>
+    AuthPAMExpiredRedirect <URL> [<status>]
 
 For both the authorization and HTTP Basic authentication case, if the
 password the user has presented has expired (PAM return codes
@@ -116,6 +116,9 @@ on the target page:
 For example for FreeIPA 4.1+, the value can actually be
 
     https://<IPA-server>/ipa/ui/reset_password.html?url=%s
+
+By default the redirect is done using 303 See Other. The redirect
+status can be specified as numerical value in the 3xx range.
 
 SELinux:
 

@@ -32,9 +32,16 @@
 
 #include "mod_auth.h"
 
+#ifdef APLOG_USE_MODULE
+#define SHOW_MODULE ""
+#else
+#define SHOW_MODULE "mod_authnz_pam: "
+#endif
+
 typedef struct {
 	char * pam_service;
 	char * expired_redirect_url;
+	int expired_redirect_status;
 } authnz_pam_config_rec;
 
 static void * create_dir_conf(apr_pool_t * pool, char * dir) {
@@ -42,13 +49,36 @@ static void * create_dir_conf(apr_pool_t * pool, char * dir) {
 	return cfg;
 }
 
+static const char * set_redirect_and_status(cmd_parms * cmd, void * conf_void, char * url, char * status) {
+	authnz_pam_config_rec * cfg = (authnz_pam_config_rec *) conf_void;
+        if (cfg) {
+                cfg->expired_redirect_url = apr_pstrdup(cmd->pool, url);
+		cfg->expired_redirect_status = HTTP_SEE_OTHER;
+                if (status) {
+                        cfg->expired_redirect_status = apr_atoi64(status);
+                        if (cfg->expired_redirect_status == 0) {
+				ap_log_error(APLOG_MARK, APLOG_WARNING, 0, cmd->server,
+					SHOW_MODULE "AuthPAMExpiredRedirect status has to be a number, setting to %d",
+					HTTP_SEE_OTHER);
+				cfg->expired_redirect_status = HTTP_SEE_OTHER;
+			} else if (cfg->expired_redirect_status < 300 || cfg->expired_redirect_status > 399) {
+				ap_log_error(APLOG_MARK, APLOG_WARNING, 0, cmd->server,
+					SHOW_MODULE "AuthPAMExpiredRedirect status has to be in the 3xx range, setting to %d",
+					HTTP_SEE_OTHER);
+				cfg->expired_redirect_status = HTTP_SEE_OTHER;
+			}
+		}
+        }
+        return NULL;
+}
+
 static const command_rec authnz_pam_cmds[] = {
 	AP_INIT_TAKE1("AuthPAMService", ap_set_string_slot,
 		(void *)APR_OFFSETOF(authnz_pam_config_rec, pam_service),
 		OR_AUTHCFG, "PAM service to authenticate against"),
-	AP_INIT_TAKE1("AuthPAMExpiredRedirect", ap_set_string_slot,
-		(void *)APR_OFFSETOF(authnz_pam_config_rec, expired_redirect_url),
-		OR_AUTHCFG, "URL to redirect to user credentials expired have expired"),
+	AP_INIT_TAKE12("AuthPAMExpiredRedirect", set_redirect_and_status,
+		NULL,
+		ACCESS_CONF|OR_AUTHCFG, "URL (and optional status) to redirect to should user have expired credentials"),
 	{NULL}
 };
 
@@ -138,12 +168,6 @@ static const char * format_location(request_rec * r, const char * url, const cha
 
 module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
-#ifdef APLOG_USE_MODULE
-#define SHOW_MODULE ""
-#else
-#define SHOW_MODULE "mod_authnz_pam: "
-#endif
-
 #if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
 static APR_OPTIONAL_FN_TYPE(ap_authn_cache_store) *authn_cache_store = NULL;
 
@@ -210,10 +234,10 @@ static authn_status pam_authenticate_with_login_password(request_rec * r, const 
 				authnz_pam_config_rec * conf = ap_get_module_config(r->per_dir_config, &authnz_pam_module);
 				if (conf && conf->expired_redirect_url) {
 					ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
-						SHOW_MODULE "PAM_NEW_AUTHTOK_REQD: redirect to [%s]",
-						conf->expired_redirect_url);
+						SHOW_MODULE "PAM_NEW_AUTHTOK_REQD: redirect to [%s] using [%d]",
+						conf->expired_redirect_url, conf->expired_redirect_status);
 					apr_table_addn(r->headers_out, "Location", format_location(r, conf->expired_redirect_url, login));
-					r->status = HTTP_TEMPORARY_REDIRECT;
+					r->status = conf->expired_redirect_status;
 					ap_send_error_response(r, 0);
 					return AUTH_DENIED;
 				}
