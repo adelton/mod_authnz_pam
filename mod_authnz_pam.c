@@ -132,11 +132,11 @@ static const char * ap_escape_urlencoded(apr_pool_t * pool, const char * buffer)
 
 
 static const char * format_location(request_rec * r, const char * url, const char *login) {
-	const char * out = "";
+	const char * out = NULL;
 	const char * p = url;
-	const char * append = NULL;
 	while (*p) {
 		if (*p == '%') {
+			const char * append = NULL;
 			if (*(p + 1) == '%') {
 				append = "%";
 			} else if (*(p + 1) == 's') {
@@ -147,21 +147,20 @@ static const char * format_location(request_rec * r, const char * url, const cha
 			} else if (*(p + 1) == 'u') {
 				append = login;
 			}
-		}
-		if (append) {
-			char * prefix = "";
-			if (p != url) {
-				prefix = apr_pstrndup(r->pool, url, p - url);
+			if (append) {
+				char * prefix = "";
+				if (p != url) {
+					prefix = apr_pstrndup(r->pool, url, p - url);
+				}
+				out = apr_pstrcat(r->pool, (out ? out : ""), prefix, ap_escape_urlencoded(r->pool, append), NULL);
+				p++;
+				url = p + 1;
 			}
-			out = apr_pstrcat(r->pool, out, prefix, ap_escape_urlencoded(r->pool, append), NULL);
-			p++;
-			url = p + 1;
-			append = NULL;
 		}
 		p++;
 	}
-	if (p != url) {
-		out = apr_pstrcat(r->pool, out, url, NULL);
+	if (p != url || !out) {
+		out = apr_pstrcat(r->pool, (out ? out : ""), url, NULL);
 	}
 	return out;
 }
