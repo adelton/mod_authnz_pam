@@ -32,6 +32,8 @@
 
 #include "mod_auth.h"
 
+module AP_MODULE_DECLARE_DATA authnz_pam_module;
+
 #ifdef APLOG_USE_MODULE
 #define SHOW_MODULE ""
 #else
@@ -165,8 +167,6 @@ static const char * format_location(request_rec * r, const char * url, const cha
 	}
 	return out;
 }
-
-module AP_MODULE_DECLARE_DATA authnz_pam_module;
 
 #if AP_MODULE_MAGIC_AT_LEAST(20100625,0)
 static APR_OPTIONAL_FN_TYPE(ap_authn_cache_store) *authn_cache_store = NULL;
@@ -343,12 +343,7 @@ static void register_hooks(apr_pool_t * p) {
 #endif
 }
 
-#ifdef AP_DECLARE_MODULE
-AP_DECLARE_MODULE(authnz_pam)
-#else
-module AP_MODULE_DECLARE_DATA authnz_pam_module
-#endif
-	= {
+AP_DECLARE_MODULE(authnz_pam) = {
 	STANDARD20_MODULE_STUFF,
 	create_dir_conf,	/* Per-directory configuration handler */
 	NULL,			/* Merge handler for per-directory configurations */
