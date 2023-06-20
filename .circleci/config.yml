@@ -1,0 +1,32 @@
+version: 2.1
+jobs:
+  arm-container:
+    parameters:
+      os:
+        type: string
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.medium
+    steps:
+      - checkout
+      - run:
+          name: Set the right OS in the Dockerfile
+          command: sed -i "s#^FROM.*#FROM << parameters.os >>#" tests/Dockerfile
+      - run:
+          name: Build image
+          command: docker build -t mod_authnz_pam -f tests/Dockerfile .
+      - run:
+          name: Run container
+          command: docker run --name mod_authnz_pam --rm -d mod_authnz_pam
+      - run:
+          name: Run tests in the container
+          command: docker exec mod_authnz_pam tests/run.sh
+workflows:
+  workflow:
+    jobs:
+      - arm-container:
+          matrix:
+            parameters:
+              os:
+                - 'registry.fedoraproject.org/fedora:latest'
+                - 'quay.io/centos/centos:stream9'
