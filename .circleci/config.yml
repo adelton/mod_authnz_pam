@@ -5,7 +5,7 @@ jobs:
       os:
         type: string
     machine:
-      image: ubuntu-2004:current
+      image: ubuntu-2204:current
     resource_class: arm.medium
     steps:
       - checkout
