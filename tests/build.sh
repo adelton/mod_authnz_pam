@@ -3,13 +3,20 @@
 set -e
 set -x
 
-DNF=yum
-BUILDDEP_PROVIDER=yum-utils
-BUILDDEP=yum-builddep
-if type dnf 2> /dev/null ; then
+if type dnf5 2> /dev/null ; then
+	DNF=dnf
+	BUILDDEP_PROVIDER='dnf5-command(builddep)'
+	BUILDDEP='dnf builddep'
+elif type dnf 2> /dev/null ; then
 	DNF=dnf
 	BUILDDEP_PROVIDER='dnf-command(builddep)'
 	BUILDDEP='dnf builddep'
+elif type yum 2> /dev/null ; then
+	DNF=yum
+	BUILDDEP_PROVIDER=yum-utils
+	BUILDDEP=yum-builddep
+else
+	exit 1
 fi
 
 $DNF install -y rpm-build "$BUILDDEP_PROVIDER"
