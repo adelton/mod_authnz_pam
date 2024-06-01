@@ -3,7 +3,7 @@ test_task:
     matrix:
       image: registry.fedoraproject.org/fedora:latest
       image: quay.io/centos/centos:stream9
-      image: quay.io/centos/centos:stream8
+      image: docker.io/almalinux:8
       image: centos:centos7
   build_script: tests/build.sh
   config_script: tests/config.sh
