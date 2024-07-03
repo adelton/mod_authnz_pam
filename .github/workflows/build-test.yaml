@@ -19,7 +19,6 @@ jobs:
           - 'registry.fedoraproject.org/fedora:latest'
           - 'quay.io/centos/centos:stream9'
           - 'docker.io/almalinux:8'
-          - 'quay.io/centos/centos:centos7'
     steps:
       - uses: actions/checkout@v4
       - name: Set the right OS in the Dockerfile

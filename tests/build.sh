@@ -11,10 +11,6 @@ elif type dnf 2> /dev/null ; then
 	DNF=dnf
 	BUILDDEP_PROVIDER='dnf-command(builddep)'
 	BUILDDEP='dnf builddep'
-elif type yum 2> /dev/null ; then
-	DNF=yum
-	BUILDDEP_PROVIDER=yum-utils
-	BUILDDEP=yum-builddep
 else
 	exit 1
 fi

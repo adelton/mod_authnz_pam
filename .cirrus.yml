@@ -4,7 +4,6 @@ test_task:
       image: registry.fedoraproject.org/fedora:latest
       image: quay.io/centos/centos:stream9
       image: docker.io/almalinux:8
-      image: centos:centos7
   build_script: tests/build.sh
   config_script: tests/config.sh
   run_httpd_background_script: /usr/sbin/httpd -DFOREGROUND
