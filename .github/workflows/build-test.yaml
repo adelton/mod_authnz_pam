@@ -17,7 +17,9 @@ jobs:
         os:
           - 'registry.fedoraproject.org/fedora:rawhide'
           - 'registry.fedoraproject.org/fedora:latest'
-          - 'quay.io/centos/centos:stream9'
+          - 'quay.io/centos/centos:stream10'
+          - 'docker.io/almalinux:10'
+          - 'docker.io/almalinux:9'
           - 'docker.io/almalinux:8'
     steps:
       - uses: actions/checkout@v6
